@@ -21,6 +21,8 @@ from textrenderer.corpus.corpus_utils import corpus_factory
 from textrenderer.renderer import Renderer
 from tenacity import retry
 
+from tools.converter import LabelConverter
+
 lock = mp.Lock()
 counter = mp.Value('i', 0)
 STOP_TOKEN = 'kill'
@@ -42,23 +44,27 @@ renderer = Renderer(corpus, fonts, bgs, cfg,
                     strict=flags.strict)
 
 
-def start_listen(q, fname):
+def start_listen(q, temp_file_path, label_encoded_path, converter):
     """ listens for messages on the q, writes to file. """
 
-    f = open(fname, mode='a', encoding='utf-8')
+    temp_file = open(temp_file_path, mode='a', encoding='utf-8')
+    gt_file = open(label_encoded_path, mode='a', encoding='utf-8')
     while 1:
         m = q.get()
         if m == STOP_TOKEN:
             break
         try:
-            f.write(str(m) + '\n')
+            temp_file.write(str(m[0]) + ' ' + str(m[1]) + '\n')
+            gt_file.write(str(m[0]) + '.jpg' + ' ' + ' '.join(str(l) for l in converter.encode(m[1])) + '\n')
         except:
             traceback.print_exc()
 
         with lock:
             if counter.value % 1000 == 0:
-                f.flush()
-    f.close()
+                temp_file.flush()
+                gt_file.flush()
+    temp_file.close()
+    gt_file.close()
 
 
 @retry
@@ -84,10 +90,10 @@ def generate_img(img_index, q=None):
         fname = os.path.join(flags.save_dir, base_name + '.jpg')
         cv2.imwrite(fname, im)
 
-        label = "{} {}".format(base_name, word)
+        # label = "{} {}".format(base_name, word)
 
         if q is not None:
-            q.put(label)
+            q.put([base_name, word])
 
         with lock:
             counter.value += 1
@@ -140,11 +146,18 @@ if __name__ == "__main__":
     if flags.viz == 1:
         flags.num_processes = 1
 
+    # name of the file without extension and gt decoded (as characters)
     tmp_label_path = os.path.join(flags.save_dir, 'tmp_labels.txt')
+    # gt with just the characters
     label_path = os.path.join(flags.save_dir, 'labels.txt')
+    # gt with just the characters
+    label_encoded_path = os.path.join(flags.save_dir, 'ground_truth.txt')
 
     manager = mp.Manager()
     q = manager.Queue()
+
+    # label converter
+    converter = LabelConverter(flags.chars_file)
 
     start_index = restore_exist_labels(label_path)
 
@@ -152,7 +165,7 @@ if __name__ == "__main__":
     timer.start()
     with mp.Pool(processes=get_num_processes(flags)) as pool:
         if not flags.viz:
-            pool.apply_async(start_listen, (q, tmp_label_path))
+            pool.apply_async(start_listen, (q, tmp_label_path, label_encoded_path, converter))
 
         pool.starmap(generate_img, zip(range(start_index, start_index + flags.num_img), repeat(q)))
 
