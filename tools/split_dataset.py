@@ -6,11 +6,26 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 
 def main(dataset_path):
-    # create output folder
-    output_root = args.output_path
-    output_images = os.path.join(output_root, "images")
-    if not os.path.exists(output_root):
-        os.makedirs(output_images)
+    output_images, output_root = create_folders()
+
+    gt = get_gt_and_move_files(dataset_path, output_images)
+
+    # split the dataset
+    train, val = train_test_split(gt)
+
+    write_files(output_root, train, val)
+
+
+def write_files(output_root, train, val):
+    with open(os.path.join(output_root, 'train.txt'), 'w') as f:
+        [f.write(' '.join(line)) for line in train]
+    with open(os.path.join(output_root, 'dev.txt'), 'w') as f:
+        [f.write(' '.join(line)) for line in val]
+
+
+def get_gt_and_move_files(dataset_path, output_images):
+    # gt per line
+    gt = []
 
     # get all files in folder
     for root, _, files in os.walk(dataset_path.dataset_path):
@@ -25,13 +40,17 @@ def main(dataset_path):
                 with open(os.path.join(root, file), 'r+') as f:
                     # ground truth per line (tuple (filename, ints)) care, last int has a \n
                     gt = [tuple(line.split(' ')) for line in f.readlines()]
+    return gt
 
-    train, val = train_test_split(gt)
 
-    with open(os.path.join(output_root, 'train.txt'), 'w') as f:
-        [f.write(' '.join(line)) for line in train]
-    with open(os.path.join(output_root, 'dev.txt'), 'w') as f:
-        [f.write(' '.join(line)) for line in val]
+def create_folders():
+    # create output folder
+    output_root = args.output_path
+    output_images = os.path.join(output_root, "images")
+    if not os.path.exists(output_root):
+        os.makedirs(output_images)
+    return output_images, output_root
+
 
 # all images into a images folder
 # create two files
