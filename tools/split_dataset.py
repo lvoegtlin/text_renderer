@@ -52,11 +52,6 @@ def create_folders():
     return output_images, output_root
 
 
-# all images into a images folder
-# create two files
-# train
-# dev (val set)
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Split dataset')
 
