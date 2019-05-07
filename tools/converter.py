@@ -32,6 +32,8 @@ class LabelConverter(object):
         for i, char in enumerate(alphabet):
             # NOTE: 0 is reserved for 'blank' required by CTCLoss
             self.dict[char] = i + 1
+        # add space
+        self.dict[' '] = 0
 
     def encode(self, labels):
         """Support batch or single str.

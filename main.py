@@ -23,6 +23,7 @@ from tenacity import retry
 
 from tools.converter import LabelConverter
 
+# constants
 lock = mp.Lock()
 counter = mp.Value('i', 0)
 STOP_TOKEN = 'kill'
