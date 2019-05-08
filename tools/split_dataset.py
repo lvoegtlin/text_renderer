@@ -2,18 +2,24 @@ import argparse
 import os
 import shutil
 
-import numpy as np
 from sklearn.model_selection import train_test_split
 
-def main(dataset_path):
-    output_images, output_root = create_folders()
 
+def split_dataset(dataset_path):
+    print("Creating folders for the split...")
+    output_images, output_root = create_folders(dataset_path)
+
+    print("Fetching gt...")
     gt = get_gt_and_move_files(dataset_path, output_images)
 
     # split the dataset
+    print("Split gt...")
     train, val = train_test_split(gt)
 
+    print("Writing files...")
     write_files(output_root, train, val)
+
+    print("Finished splitting!")
 
 
 def write_files(output_root, train, val):
@@ -28,7 +34,7 @@ def get_gt_and_move_files(dataset_path, output_images):
     gt = []
 
     # get all files in folder
-    for root, _, files in os.walk(dataset_path.dataset_path):
+    for root, _, files in os.walk(dataset_path):
         # iterate over each file
         for file in files:
             file_name, file_extension = os.path.splitext(file)
@@ -43,13 +49,13 @@ def get_gt_and_move_files(dataset_path, output_images):
     return gt
 
 
-def create_folders():
+def create_folders(dataset_path):
     # create output folder
-    output_root = args.output_path
-    output_images = os.path.join(output_root, "images")
-    if not os.path.exists(output_root):
+    root_path = os.path.join(os.path.split(dataset_path)[0], "split")
+    output_images = os.path.join(root_path, "images")
+    if not os.path.exists(output_images):
         os.makedirs(output_images)
-    return output_images, output_root
+    return output_images, root_path
 
 
 if __name__ == '__main__':
@@ -57,8 +63,6 @@ if __name__ == '__main__':
 
     parser.add_argument("--dataset_path", required=True,
                         help="The path to the data set")
-    parser.add_argument("--output_path", required=True,
-                        help="The output path")
 
     args = parser.parse_args()
-    main(args)
+    split_dataset(args.dataset_path)

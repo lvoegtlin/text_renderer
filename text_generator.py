@@ -24,6 +24,8 @@ from tenacity import retry
 from tools.converter import LabelConverter
 
 # constants
+from tools.split_dataset import split_dataset
+
 lock = mp.Lock()
 counter = mp.Value('i', 0)
 STOP_TOKEN = 'kill'
@@ -177,3 +179,6 @@ if __name__ == "__main__":
 
     if not flags.viz:
         sort_labels(tmp_label_path, label_path)
+
+    # split dataset
+    split_dataset(flags.save_dir)
