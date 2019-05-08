@@ -43,7 +43,7 @@ def get_gt_and_move_files(dataset_path, output_images, copy):
                 if file_extension == '.jpg':
                     # move file to output folder
                     shutil.copy(os.path.join(root, file), os.path.join(output_images, file))
-                continue
+                    continue
             if "ground_truth.txt" in file:
                 with open(os.path.join(root, file), 'r+') as f:
                     # ground truth per line (tuple (filename, ints)) care, last int has a \n
