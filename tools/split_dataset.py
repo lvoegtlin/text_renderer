@@ -5,12 +5,12 @@ import shutil
 from sklearn.model_selection import train_test_split
 
 
-def split_dataset(dataset_path):
+def split_dataset(dataset_path, copy=False):
     print("Creating folders for the split...")
     output_images, output_root = create_folders(dataset_path)
 
     print("Fetching gt...")
-    gt = get_gt_and_move_files(dataset_path, output_images)
+    gt = get_gt_and_move_files(dataset_path, output_images, copy)
 
     # split the dataset
     print("Split gt...")
@@ -29,7 +29,7 @@ def write_files(output_root, train, val):
         [f.write(' '.join(line)) for line in val]
 
 
-def get_gt_and_move_files(dataset_path, output_images):
+def get_gt_and_move_files(dataset_path, output_images, copy):
     # gt per line
     gt = []
 
@@ -39,9 +39,11 @@ def get_gt_and_move_files(dataset_path, output_images):
         for file in files:
             file_name, file_extension = os.path.splitext(file)
             # check if its a image
-            if file_extension == '.jpg':
-                # move file to output folder
-                shutil.copy(os.path.join(root, file), os.path.join(output_images, file))
+            if copy:
+                if file_extension == '.jpg':
+                    # move file to output folder
+                    shutil.copy(os.path.join(root, file), os.path.join(output_images, file))
+                continue
             if "ground_truth.txt" in file:
                 with open(os.path.join(root, file), 'r+') as f:
                     # ground truth per line (tuple (filename, ints)) care, last int has a \n
