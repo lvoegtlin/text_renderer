@@ -48,6 +48,7 @@ def get_gt_and_move_files(dataset_path, output_images, copy):
                 with open(os.path.join(root, file), 'r+') as f:
                     # ground truth per line (tuple (filename, ints)) care, last int has a \n
                     gt = [tuple(line.split(' ')) for line in f.readlines()]
+                    shutil.copy(os.path.join(root, file), os.path.join(os.path.join(os.path.split(dataset_path)[0], "split"), file))
     return gt
 
 
@@ -67,4 +68,4 @@ if __name__ == '__main__':
                         help="The path to the data set")
 
     args = parser.parse_args()
-    split_dataset(args.dataset_path)
+    split_dataset(args.dataset_path, copy=True)

@@ -22,4 +22,4 @@ class ListCorpus(Corpus):
 
     def get_sample(self, img_index):
         index = img_index % len(self.corpus)
-        return self.corpus[index]
+        return self.corpus[index], ''

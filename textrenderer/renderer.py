@@ -42,7 +42,7 @@ class Renderer(object):
             self.font_unsupport_chars = font_utils.get_unsupported_chars(self.fonts, corpus.chars_file)
 
     def gen_img(self, img_index):
-        word, font, word_size = self.pick_font(img_index)
+        word, font, word_size, indexes = self.pick_font(img_index)
         self.dmsg("after pick font")
 
         # Background's height should much larger than raw word image's height,
@@ -115,7 +115,7 @@ class Renderer(object):
             word_img = self.apply_sharp(word_img)
             self.dmsg("After sharp")
 
-        return word_img, word
+        return word_img, word, indexes
 
     def dmsg(self, msg):
         if self.debug:
@@ -453,7 +453,7 @@ class Renderer(object):
             font: truetype
             size: word size, removed offset (width, height)
         """
-        word = self.corpus.get_sample(img_index)
+        word, indexes = self.corpus.get_sample(img_index)
 
         if self.clip_max_chars and len(word) > self.max_chars:
             word = word[:self.max_chars]
@@ -474,7 +474,7 @@ class Renderer(object):
         font_size = random.randint(self.cfg.font_size.min, self.cfg.font_size.max)
         font = ImageFont.truetype(font_path, font_size)
 
-        return word, font, self.get_word_size(font, word)
+        return word, font, self.get_word_size(font, word), indexes
 
     def get_word_size(self, font, word):
         """

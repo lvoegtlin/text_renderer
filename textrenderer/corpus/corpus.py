@@ -27,6 +27,8 @@ class Corpus(object):
         """
         Get word line from corpus in memory
         :return: string
+        Indexes for the random generator
+        :return: string
         """
         pass
 

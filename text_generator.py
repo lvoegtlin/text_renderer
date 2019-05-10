@@ -47,7 +47,7 @@ renderer = Renderer(corpus, fonts, bgs, cfg,
                     strict=flags.strict)
 
 
-def start_listen(q, temp_file_path, label_encoded_path, converter):
+def start_listen(q, temp_file_path, label_encoded_path):
     """ listens for messages on the q, writes to file. """
 
     temp_file = open(temp_file_path, mode='a', encoding='utf-8')
@@ -58,7 +58,7 @@ def start_listen(q, temp_file_path, label_encoded_path, converter):
             break
         try:
             temp_file.write(str(m[0]) + ' ' + str(m[1]) + '\n')
-            gt_file.write(str(m[0]) + '.jpg' + ' ' + ' '.join(str(l) for l in converter.encode(m[1])) + '\n')
+            gt_file.write(str(m[0]) + '.jpg' + ' ' + m[2] + '\n')
         except:
             traceback.print_exc()
 
@@ -85,7 +85,7 @@ def generate_img(img_index, q=None):
     # Make sure different process has different random seed
     np.random.seed()
 
-    im, word = gen_img_retry(renderer, img_index)
+    im, word, indexes = gen_img_retry(renderer, img_index)
 
     base_name = '{:08d}'.format(img_index)
 
@@ -96,7 +96,7 @@ def generate_img(img_index, q=None):
         # label = "{} {}".format(base_name, word)
 
         if q is not None:
-            q.put([base_name, word])
+            q.put([base_name, word, indexes])
 
         with lock:
             counter.value += 1
@@ -168,7 +168,7 @@ if __name__ == "__main__":
     timer.start()
     with mp.Pool(processes=get_num_processes(flags)) as pool:
         if not flags.viz:
-            pool.apply_async(start_listen, (q, tmp_label_path, label_encoded_path, converter))
+            pool.apply_async(start_listen, (q, tmp_label_path, label_encoded_path))
 
         pool.starmap(generate_img, zip(range(start_index, start_index + flags.num_img), repeat(q)))
 
@@ -181,4 +181,4 @@ if __name__ == "__main__":
         sort_labels(tmp_label_path, label_path)
 
     # split dataset
-    split_dataset(flags.save_dir)
+    split_dataset(flags.save_dir, copy=True)

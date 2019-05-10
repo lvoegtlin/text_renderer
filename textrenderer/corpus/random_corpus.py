@@ -13,7 +13,10 @@ class RandomCorpus(Corpus):
 
     def get_sample(self, img_index):
         word = ''
+        indexes = []
         for _ in range(self.length):
-            word += random.choice(self.charsets)
-        return word
+            index = random.randint(0, len(self.charsets)) + 1
+            indexes.append(index)
+            word += self.charsets[index]
+        return word, ' '.join([str(i) for i in indexes])
 
