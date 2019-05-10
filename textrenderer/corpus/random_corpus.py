@@ -18,5 +18,5 @@ class RandomCorpus(Corpus):
             index = random.randint(0, len(self.charsets)) + 1
             indexes.append(index)
             word += self.charsets[index]
-        return word, ' '.join([str(i) for i in indexes])
+        return word
 

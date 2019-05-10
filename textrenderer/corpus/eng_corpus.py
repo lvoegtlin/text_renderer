@@ -29,4 +29,4 @@ class EngCorpus(Corpus):
         start = np.random.randint(0, len(self.corpus) - self.length)
         words = self.corpus[start:start + self.length]
         word = ' '.join(words)
-        return word, ''
+        return word

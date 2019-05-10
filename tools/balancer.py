@@ -85,7 +85,7 @@ class BalanceCorpus(ChnCorpus):
 
         word = self.corpus[start:start + self.length]
 
-        return word, ''
+        return word
 
     def char_freq_counted(self):
         return self.chars_avg_count != 0
