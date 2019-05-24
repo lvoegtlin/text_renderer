@@ -6,10 +6,10 @@ font_size:
 # By default, text is drawed by Pillow with (https://stackoverflow.com/questions/43828955/measuring-width-of-text-python-pil)
 # If `random_space` is enabled, some text will be drawed char by char with a random space
 random_space:
-  enable: false
-  fraction: 0.3
-  min: -0.1 # -0.1 will make chars very close or even overlapped
-  max: 0.1
+  enable: true
+  fraction: 0.5
+  min: 0.0 # -0.1 will make chars very close or even overlapped
+  max: 0.2
 
 # Do remap with sin()
 # Currently this process is very slow!
@@ -22,7 +22,7 @@ curve:
 
 # random crop text height
 crop:
-  enable: false
+  enable: true
   fraction: 0.5
 
   # top and bottom will applied equally
