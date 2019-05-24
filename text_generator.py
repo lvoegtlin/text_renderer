@@ -36,15 +36,15 @@ cfg = load_config(flags.config_file)
 fonts = font_utils.get_font_paths_from_list(flags.fonts_list)
 bgs = utils.load_bgs(flags.bg_dir)
 
-corpus = corpus_factory(flags.corpus_mode, flags.chars_file, flags.corpus_dir, flags.length)
+corpuses = [corpus_factory(flags.corpus_mode, flags.chars_file, flags.corpus_dir, i) for i in range(3, flags.length + 1)]
 
-renderer = Renderer(corpus, fonts, bgs, cfg,
+renderers = [Renderer(corpus, fonts, bgs, cfg,
                     height=flags.img_height,
                     width=flags.img_width,
                     clip_max_chars=flags.clip_max_chars,
                     debug=flags.debug,
                     gpu=flags.gpu,
-                    strict=flags.strict)
+                    strict=flags.strict) for corpus in corpuses]
 
 
 def start_listen(q, temp_file_path, label_encoded_path, converter):
@@ -85,7 +85,7 @@ def generate_img(img_index, q=None):
     # Make sure different process has different random seed
     np.random.seed()
 
-    im, word = gen_img_retry(renderer, img_index)
+    im, word = gen_img_retry(np.random.choice(renderers), img_index)
 
     base_name = '{:08d}'.format(img_index)
 
